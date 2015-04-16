@@ -2,7 +2,7 @@ package org.gearfalcone.erp.db.dao.impl.mongodb;
 
 import org.gearfalcone.erp.db.dao.AbstractEmployeeDAO;
 import org.gearfalcone.erp.db.entities.Employee;
-import org.gearfalcone.erp.db.utils.MongoDelegate;
+import org.gearfalcone.erp.db.mongo.MongoDelegate;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
 /**

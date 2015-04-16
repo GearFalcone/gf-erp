@@ -1,7 +1,10 @@
 package org.gearfalcone.erp.db.entities;
 
 import org.gearfalcone.erp.db.annotations.MongoCollectionName;
+import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.math.BigInteger;
 
 /**
@@ -12,10 +15,24 @@ import java.math.BigInteger;
 public class Employee {
 
     private BigInteger id;
+
+    @NotNull
+    @Size(min=1, max = 100)
     private String firstname;
+
+    @NotNull
+    @Size(min=1, max = 100)
     private String lastname;
+
+    @Size(max=100)
     private String patronymic;
+
+    @NotNull
+    @Size(min=3, max=100)
     private String login;
+
+    @NotNull
+    @Size(min=3, max=100)
     private String password;
 
     public BigInteger getId() {

@@ -1,13 +1,14 @@
-package org.gearfalcone.erp.db.utils;
+package org.gearfalcone.erp.db.mongo;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.DBObject;
 import com.mongodb.util.JSON;
 import org.gearfalcone.erp.db.annotations.MongoCollectionName;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
+import javax.validation.*;
 import java.lang.annotation.Annotation;
+import java.util.Set;
 
 /**
  * Created by andy on 14.04.15.
@@ -15,14 +16,21 @@ import java.lang.annotation.Annotation;
 public class MongoDelegate <T> {
 
     private MongoTemplate mongoTemplate;
+    private Validator validator;
 
     public MongoDelegate(MongoTemplate mt){
         if(mt==null)
             throw new IllegalArgumentException("MongoTemplate cannot be null");
         mongoTemplate=mt;
+
+        ValidatorFactory vf= Validation.buildDefaultValidatorFactory();
+        validator=vf.getValidator();
     }
 
     public void save(T entity){
+
+        validate(entity);
+
         String colName=extractCollectionName(entity);
         String json=toJson(entity);
 
@@ -62,6 +70,28 @@ public class MongoDelegate <T> {
             throw new IllegalArgumentException("Cannot determine Mongo DB collection name. Invalid entity object");
 
        return colName;
+    }
+
+    protected void validate(T entity){
+        Set<ConstraintViolation<T>> cv=validator.validate(entity);
+
+        StringBuilder sb=new StringBuilder("The following problem has been found in entity ");
+        sb.append(entity.getClass().getSimpleName())
+                .append(":\n");
+
+                if(cv!=null && !cv.isEmpty()){
+                    for(ConstraintViolation<T> next: cv){
+                        String message=next.getMessage();
+                        sb.append("Field ")
+                                .append(next.getPropertyPath())
+                                .append(" ")
+                                .append(message)
+                                .append("\n");
+            }
+
+            throw new ValidationException(sb.toString());
+        }
+
     }
 
 }
