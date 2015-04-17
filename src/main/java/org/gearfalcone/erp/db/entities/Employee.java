@@ -1,20 +1,29 @@
 package org.gearfalcone.erp.db.entities;
 
-import org.gearfalcone.erp.db.annotations.MongoCollectionName;
-import org.hibernate.validator.constraints.NotEmpty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.gearfalcone.erp.db.mongo.json.MongoObjectIdDeserializer;
+import org.gearfalcone.erp.db.mongo.json.MongoObjectIdSerializer;
+import org.gearfalcone.erp.db.validation.annotations.UniqueLogin;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.math.BigInteger;
 
 /**
  * Created by andy on 13.04.15.
  */
 
-@MongoCollectionName(name="employees")
+@Document(collection="employees")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Employee {
 
-    private BigInteger id;
+    @Id
+    @JsonSerialize(using = MongoObjectIdSerializer.class)
+    @JsonDeserialize(using = MongoObjectIdDeserializer.class)
+    private String _id;
 
     @NotNull
     @Size(min=1, max = 100)
@@ -29,18 +38,19 @@ public class Employee {
 
     @NotNull
     @Size(min=3, max=100)
+    @UniqueLogin
     private String login;
 
     @NotNull
     @Size(min=3, max=100)
     private String password;
 
-    public BigInteger getId() {
-        return id;
+    public String get_id() {
+        return _id;
     }
 
-    public void setId(BigInteger id) {
-        this.id = id;
+    public void set_id(String _id) {
+        this._id = _id;
     }
 
     public String getFirstname() {

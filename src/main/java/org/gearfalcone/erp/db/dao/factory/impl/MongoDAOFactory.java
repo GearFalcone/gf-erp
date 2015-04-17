@@ -17,7 +17,7 @@ public class MongoDAOFactory extends AbstractDAOFactory {
     @Override
     public AbstractEmployeeDAO getEmployeeDAO() {
         if(employeeDAO==null)
-            employeeDAO=new MongoEmployeeDAOImpl(mongoTemplate);
+            employeeDAO=new MongoEmployeeDAOImpl(mongoTemplate, validator);
 
         return employeeDAO;
     }

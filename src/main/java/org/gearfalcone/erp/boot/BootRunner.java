@@ -2,10 +2,8 @@ package org.gearfalcone.erp.boot;
 
 import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
-import com.mongodb.MongoCredential;
 import org.gearfalcone.erp.db.dao.factory.AbstractDAOFactory;
 import org.gearfalcone.erp.db.dao.factory.impl.MongoDAOFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -14,11 +12,12 @@ import org.springframework.boot.autoconfigure.mongo.MongoDataAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.data.authentication.UserCredentials;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
-import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 
 /**
@@ -27,7 +26,7 @@ import java.text.SimpleDateFormat;
 
 @Configuration
 @EnableAutoConfiguration(exclude={MongoAutoConfiguration.class, MongoDataAutoConfiguration.class})
-@ComponentScan(basePackages = "org.gearfalcone.erp.rest")
+@ComponentScan(basePackages = "org.gearfalcone.erp.rest, org.gearfalcone.erp.db.validation.validators")
 public class BootRunner {
 
     @Value("${gf.erp.db.vendorname}")
@@ -51,8 +50,7 @@ public class BootRunner {
     }
 
     @Bean
-    @Qualifier("daoFactory")
-    public AbstractDAOFactory getDAOFactory(){
+    public AbstractDAOFactory daoFactory(){
         AbstractDAOFactory df=null;
         switch(dbVendorName){
             case MONGO_DB_VENDOR_NAME: MongoTemplate mt=instantiateMongo();
@@ -72,8 +70,13 @@ public class BootRunner {
         return builder;
     }
 
+    @Bean
+    public LocalValidatorFactoryBean validator(){
+        return new LocalValidatorFactoryBean();
+    }
+
     private MongoTemplate instantiateMongo(){
-        MongoTemplate templ=null;
+        MongoTemplate templ;
         try{
             Mongo mon=new MongoClient(dbHost, dbPort);
             templ=new MongoTemplate(mon, dbName, new UserCredentials(dbUsername, dbPassword));
